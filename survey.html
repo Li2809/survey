@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Психологическое исследование — КамГУ им. Витуса Беринга</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #F7F6F3;
+    --surface:   #FFFFFF;
+    --border:    #E2E0DB;
+    --text:      #1A1917;
+    --muted:     #6B6860;
+    --accent:    #2D5DA1;
+    --accent-lt: #EBF0F9;
+    --error:     #C0392B;
+    --error-lt:  #FDEDEB;
+    --ok:        #1E7E4A;
+    --ok-lt:     #E8F5EE;
+    --warn:      #B45309;
+    --warn-lt:   #FEF3C7;
+    --radius:    10px;
+    --shadow:    0 2px 12px rgba(0,0,0,.07);
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .hdr {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .hdr-label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .5rem;
+  }
+  .hdr h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: .75rem;
+  }
+  .hdr p {
+    font-size: .9rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    margin-bottom: 2rem;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: .75rem;
+    color: var(--muted);
+    margin-bottom: .4rem;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+  .step-dots {
+    display: flex;
+    gap: .4rem;
+    justify-content: center;
+    margin-top: .6rem;
+  }
+  .step-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background .3s;
+  }
+  .step-dot.active { background: var(--accent); }
+  .step-dot.done   { background: var(--ok); }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .35rem;
+  }
+  .section-sub {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  /* ── Instruction box ── */
+  .instruction {
+    background: var(--accent-lt);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1rem 1.25rem;
+    font-size: .85rem;
+    color: #1e3a6e;
+    margin-bottom: 1.75rem;
+    line-height: 1.65;
+  }
+  .instruction strong { display: block; margin-bottom: .4rem; font-size: .9rem; }
+
+  /* ── Question label ── */
+  .q-num {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .2rem;
+  }
+  .q-row {
+    margin-bottom: 1.75rem;
+  }
+  .q-row:last-of-type { margin-bottom: 0; }
+
+  /* ── Radio gender/age ── */
+  .radio-group {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-top: .5rem;
+  }
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    cursor: pointer;
+    font-size: .95rem;
+    padding: .6rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+  }
+  .radio-group label:hover { border-color: var(--accent); background: var(--accent-lt); }
+  .radio-group input[type=radio] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .radio-group input[type=radio]:checked + span { color: var(--accent); font-weight: 500; }
+  .radio-group label:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-lt);
+  }
+
+  /* ── Scale (СЖО) ── */
+  .scale-wrap {
+    margin-top: .65rem;
+  }
+  .scale-poles {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: var(--muted);
+    margin-bottom: .35rem;
+    gap: 1rem;
+  }
+  .scale-poles span { max-width: 42%; line-height: 1.35; }
+  .scale-poles span:last-child { text-align: right; }
+  .scale-radios {
+    display: flex;
+    justify-content: space-between;
+    gap: .3rem;
+  }
+  .scale-radios label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+    cursor: pointer;
+    flex: 1;
+  }
+  .scale-radios label span {
+    font-size: .72rem;
+    color: var(--muted);
+  }
+  .scale-radios input[type=radio] {
+    width: 20px; height: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .scale-radios label:has(input:checked) span {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .q-text {
+    font-size: .92rem;
+    color: var(--text);
+    margin-bottom: .1rem;
+  }
+
+  /* ── Rokeach grid ── */
+  .rok-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem;
+  }
+  .rok-table th {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: .4rem .6rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .rok-table th:last-child { text-align: center; width: 110px; }
+  .rok-table td {
+    padding: .55rem .6rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .rok-table tr:last-child td { border-bottom: none; }
+  .rok-table tr:hover td { background: var(--bg); }
+
+  .rok-num {
+    font-size: .75rem;
+    color: var(--muted);
+    font-weight: 500;
+    width: 28px;
+  }
+  .rok-val-cell { text-align: center; }
+
+  /* Select styled */
+  .rok-select {
+    width: 90px;
+    padding: .4rem .5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: .88rem;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6860' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .5rem center;
+    transition: border-color .2s, background-color .2s;
+  }
+  .rok-select:focus { outline: none; border-color: var(--accent); }
+
+  /* Duplicate states */
+  .rok-select.dup {
+    border-color: var(--error);
+    background-color: var(--error-lt);
+    color: var(--error);
+    font-weight: 600;
+    animation: shake .3s ease;
+  }
+  .rok-select.ok {
+    border-color: var(--ok);
+    background-color: var(--ok-lt);
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-4px); }
+    75%      { transform: translateX(4px); }
+  }
+
+  /* ── Duplicate warning banner ── */
+  .dup-warning {
+    display: none;
+    align-items: flex-start;
+    gap: .6rem;
+    background: var(--error-lt);
+    border: 1px solid #f5c6c2;
+    border-radius: var(--radius);
+    padding: .85rem 1rem;
+    font-size: .85rem;
+    color: var(--error);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+  .dup-warning.visible { display: flex; }
+  .dup-warning svg { flex-shrink: 0; margin-top: 2px; }
+
+  /* ── Progress counter ── */
+  .rok-counter {
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .rok-counter-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rok-counter-fill {
+    height: 100%;
+    background: var(--ok);
+    border-radius: 2px;
+    transition: width .3s;
+  }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .7rem 1.6rem;
+    border-radius: 7px;
+    font-size: .92rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) { background: #1e4a8a; transform: translateY(-1px); }
+  .btn-primary:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Blocked hint ── */
+  .blocked-hint {
+    display: none;
+    font-size: .8rem;
+    color: var(--error);
+    text-align: right;
+    margin-top: .5rem;
+  }
+  .blocked-hint.visible { display: block; }
+
+  /* ── Thank you screen ── */
+  .thankyou {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+  .thankyou.visible { display: block; }
+  .ty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+  }
+  .ty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: .75rem;
+  }
+  .ty-text {
+    color: var(--muted);
+    font-size: .95rem;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  /* ── Step panels ── */
+  .step { display: none; }
+  .step.active { display: block; }
+
+  /* ── Sending overlay ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(247,246,243,.8);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 100;
+    font-size: .95rem;
+    color: var(--muted);
+  }
+  .overlay.visible { display: flex; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 560px) {
+    .card { padding: 1.25rem 1rem; }
+    .scale-radios label span { font-size: .65rem; }
+    .rok-select { width: 72px; font-size: .82rem; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-label">КамГУ им. Витуса Беринга · Научное исследование</div>
+    <h1>Ценностно-смысловые ориентации современной молодёжи</h1>
+    <p>Анонимный опрос. Все ответы используются исключительно в научных целях.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span id="step-label">Шаг 1 из 4</span>
+      <span id="step-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+    <div class="step-dots">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ШАГ 0: Общие сведения
+  ════════════════════════════════════════════ -->
+  <div class="step active" id="step-0">
+    <div class="card">
+      <div class="section-title">Общие сведения</div>
+      <div class="section-sub">Пожалуйста, укажите информацию о себе. Данные анонимны.</div>
+
+      <div class="q-row">
+        <div class="q-num">Вопрос 1</div>
+        <div class="q-text">Укажите ваш пол</div>
+        <div class="radio-group">
+          <label><input type="radio" name="gender" value="Женский"><span>Женский</span></label>
+          <label><input type="radio" name="gender" value="Мужской"><span>Мужской</span></label>
+        </div>
+      </div>
+
+      <div class="q-row" style="margin-top:1.5rem">
+        <div class="q-num">Вопрос 2</div>
+        <div class="q-text">Укажите ваш возраст</div>
+        <div class="radio-group">
+          <label><input type="radio" name="age" value="18–20 лет"><span>18–20 лет</span></label>
+          <label><input type="radio" name="age" value="21–23 года"><span>21–23 года</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <span></span>
+      <div>
+        <button class="btn btn-primary" onclick="nextStep(0)">Далее →</button>
+        <div class="blocked-hint" id="hint-0">Пожалуйста, ответьте на все вопросы</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ШАГ 1: СЖО Леонтьева
+  ════════════════════════════════════════════ -->
+  <div class="step" id="step-1">
+    <div class="card">
+      <div class="section-title">Тест смысложизненных ориентаций (СЖО)</div>
+      <div class="section-sub">Д. А. Леонтьев · 20 утверждений</div>
+      <div class="instruction">
+        <strong>Инструкция</strong>
+        Вам предложены 20 пар противоположных утверждений. Выберите одно из 7 значений, которое точнее всего описывает ваше мнение: <b>1</b> — полностью согласны с утверждением слева, <b>7</b> — полностью согласны с утверждением справа, <b>4</b> — нейтральная позиция. Отвечайте быстро, опираясь на первое впечатление. Не пропускайте вопросы.
+      </div>
+      <div id="szho-questions"></div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-ghost" onclick="prevStep(1)">← Назад</button>
+      <div>
+        <button class="btn btn-primary" onclick="nextStep(1)">Далее →</button>
+        <div class="blocked-hint" id="hint-1">Пожалуйста, ответьте на все 20 вопросов</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ШАГ 2: Рокич — Список А (терминальные)
+  ════════════════════════════════════════════ -->
+  <div class="step" id="step-2">
+    <div class="card">
+      <div class="section-title">Методика ценностных ориентаций — Список А</div>
+      <div class="section-sub">М. Рокич · Терминальные ценности (ценности-цели)</div>
+      <div class="instruction">
+        <strong>Инструкция</strong>
+        Перед вами 18 ценностей. Проранжируйте их по степени важности для вас лично: <b>1</b> — самая важная, <b>18</b> — наименее важная. Каждое число от 1 до 18 должно быть использовано ровно один раз. Пока есть повторяющиеся ранги — кнопка «Далее» будет заблокирована, а дублирующиеся значения выделятся красным.
+      </div>
+      <div class="dup-warning" id="dup-warn-a">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="dup-warn-a-text">Есть повторяющиеся ранги. Исправьте выделенные красным строки, чтобы продолжить.</span>
+      </div>
+      <div class="rok-counter">
+        <span id="rok-a-count">Заполнено: 0 / 18</span>
+        <div class="rok-counter-bar"><div class="rok-counter-fill" id="rok-a-fill" style="width:0%"></div></div>
+      </div>
+      <table class="rok-table">
+        <thead><tr><th>#</th><th>Ценность</th><th>Ранг</th></tr></thead>
+        <tbody id="rok-a-body"></tbody>
+      </table>
+    </div>
+    <div class="nav">
+      <button class="btn btn-ghost" onclick="prevStep(2)">← Назад</button>
+      <div>
+        <button class="btn btn-primary" id="btn-next-2" onclick="nextStep(2)">Далее →</button>
+        <div class="blocked-hint" id="hint-2">Устраните все повторяющиеся ранги</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ШАГ 3: Рокич — Список Б (инструментальные)
+  ════════════════════════════════════════════ -->
+  <div class="step" id="step-3">
+    <div class="card">
+      <div class="section-title">Методика ценностных ориентаций — Список Б</div>
+      <div class="section-sub">М. Рокич · Инструментальные ценности (ценности-средства)</div>
+      <div class="instruction">
+        <strong>Инструкция</strong>
+        Перед вами второй список из 18 ценностей. Действуйте так же: присвойте каждой ценности уникальный ранг от 1 до 18. Кнопка «Отправить» станет активной, когда все 18 рангов будут уникальны.
+      </div>
+      <div class="dup-warning" id="dup-warn-b">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="dup-warn-b-text">Есть повторяющиеся ранги. Исправьте выделенные красным строки, чтобы продолжить.</span>
+      </div>
+      <div class="rok-counter">
+        <span id="rok-b-count">Заполнено: 0 / 18</span>
+        <div class="rok-counter-bar"><div class="rok-counter-fill" id="rok-b-fill" style="width:0%"></div></div>
+      </div>
+      <table class="rok-table">
+        <thead><tr><th>#</th><th>Ценность</th><th>Ранг</th></tr></thead>
+        <tbody id="rok-b-body"></tbody>
+      </table>
+    </div>
+    <div class="nav">
+      <button class="btn btn-ghost" onclick="prevStep(3)">← Назад</button>
+      <div>
+        <button class="btn btn-primary" id="btn-submit" onclick="submitForm()" disabled>Отправить ✓</button>
+        <div class="blocked-hint" id="hint-3">Устраните все повторяющиеся ранги</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       Экран «Спасибо»
+  ════════════════════════════════════════════ -->
+  <div class="card thankyou" id="thankyou">
+    <div class="ty-icon">✅</div>
+    <div class="ty-title">Спасибо за участие!</div>
+    <p class="ty-text">Ваши ответы успешно сохранены и будут использованы в научном исследовании. Вы можете закрыть эту страницу.</p>
+  </div>
+
+</div><!-- /shell -->
+
+<!-- Sending overlay -->
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <span>Отправляем ответы…</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  ДАННЫЕ МЕТОДИК
+// ═══════════════════════════════════════════════════════
+
+const SZHO = [
+  ['Обычно мне очень скучно.', 'Обычно я полон(а) энергии.'],
+  ['Жизнь кажется мне всегда волнующей и захватывающей.', 'Жизнь кажется мне совершенно спокойной и рутинной.'],
+  ['В жизни я не имею определённых целей и намерений.', 'В жизни я имею очень ясные цели и намерения.'],
+  ['Моя жизнь представляется мне крайне бессмысленной и бесцельной.', 'Моя жизнь представляется мне вполне осмысленной и целеустремлённой.'],
+  ['Каждый день кажется мне всегда новым и непохожим на другие.', 'Каждый день кажется мне совершенно похожим на все другие.'],
+  ['Когда я уйду на пенсию, я займусь интересными вещами, которыми всегда хотел(а) заняться.', 'Когда я уйду на пенсию, я постараюсь не обременять себя никакими заботами.'],
+  ['Моя жизнь сложилась именно так, как я мечтал(а).', 'Моя жизнь сложилась совсем не так, как я мечтал(а).'],
+  ['Я не добился(лась) успехов в осуществлении своих жизненных планов.', 'Я осуществил(а) многое из того, что было мной запланировано в жизни.'],
+  ['Моя жизнь пуста и неинтересна.', 'Моя жизнь наполнена интересными делами.'],
+  ['Если бы мне пришлось подводить сегодня итог моей жизни, я бы сказал(а), что она была вполне осмысленной.', 'Если бы мне пришлось сегодня подводить итог моей жизни, я бы сказал(а), что она не имела смысла.'],
+  ['Если бы я мог(ла) выбирать, то я бы построил(а) свою жизнь совершенно иначе.', 'Если бы я мог(ла) выбирать, то я бы прожил(а) жизнь ещё раз так же, как живу сейчас.'],
+  ['Когда я слушаю рассказ о том, чего я никогда не смогу достичь, я обычно думаю: «Это меня ничуть не задело».', 'Когда я слушаю рассказ о том, чего я никогда не смогу достичь, я обычно думаю: «Это меня очень расстраивает».'],
+  ['Если мне и не везёт в жизни, то это требует от меня усилий и поиска выхода.', 'Если мне не везёт в жизни, то я обычно отчаиваюсь.'],
+  ['Я с жаром отстаиваю свои взгляды, когда они расходятся с мнением большинства.', 'Я обычно отказываюсь от своих взглядов, когда они расходятся с мнением большинства.'],
+  ['Я легко могу осуществить свои жизненные планы.', 'Мне очень трудно осуществить свои жизненные планы.'],
+  ['Я всегда нахожу силы для того, чтобы сделать то, что задумал(а).', 'Мне всегда не хватает сил для того, чтобы сделать то, что я задумал(а).'],
+  ['Я убеждён(а), что смогу воплотить в жизнь задуманное.', 'Я совсем не уверен(а), что смогу воплотить в жизнь задуманное.'],
+  ['Я убеждён(а), что жизнь человека может быть наполнена смыслом.', 'Я совсем не уверен(а), что жизнь человека может быть наполнена смыслом.'],
+  ['Я думаю, что мог(ла) бы найти призвание и интересные цели в жизни.', 'Я думаю, что не смог(ла) бы найти призвание и интересные цели в жизни.'],
+  ['Мои жизненные взгляды ещё не определились.', 'Моя жизненная философия хорошо мне известна.']
+];
+
+const ROK_A = [
+  'Активная деятельная жизнь (полнота и эмоциональная насыщенность жизни)',
+  'Жизненная мудрость (зрелость суждений и здравый смысл, достигаемые жизненным опытом)',
+  'Здоровье (физическое и психическое)',
+  'Интересная работа',
+  'Красота природы и искусства (переживание прекрасного в природе и в искусстве)',
+  'Любовь (духовная и физическая близость с любимым человеком)',
+  'Материально обеспеченная жизнь (отсутствие материальных затруднений)',
+  'Наличие хороших и верных друзей',
+  'Общественное признание (уважение окружающих, коллектива, товарищей по работе)',
+  'Познание (возможность расширения своего образования, кругозора, общей культуры)',
+  'Продуктивная жизнь (максимально полное использование своих возможностей и сил)',
+  'Развитие (работа над собой, постоянное физическое и духовное совершенствование)',
+  'Развлечения (приятное, необременительное времяпрепровождение, отсутствие обязанностей)',
+  'Свобода (самостоятельность, независимость в суждениях и поступках)',
+  'Счастливая семейная жизнь',
+  'Счастье других (благосостояние и развитие других людей, всего народа, человечества)',
+  'Творчество (возможность творческой деятельности)',
+  'Уверенность в себе (внутренняя гармония, свобода от внутренних противоречий)'
+];
+
+const ROK_B = [
+  'Аккуратность (чистоплотность, умение содержать в порядке вещи, порядок в делах)',
+  'Воспитанность (хорошие манеры)',
+  'Высокие запросы (высокие требования к жизни и высокие притязания)',
+  'Жизнерадостность (чувство юмора)',
+  'Исполнительность (дисциплинированность)',
+  'Независимость (способность действовать самостоятельно, решительно)',
+  'Непримиримость к недостаткам в себе и других',
+  'Образованность (широта знаний, высокая общая культура)',
+  'Ответственность (чувство долга, умение держать своё слово)',
+  'Рационализм (умение здраво и логично мыслить, принимать обдуманные решения)',
+  'Самоконтроль (сдержанность, самодисциплина)',
+  'Смелость в отстаивании своего мнения, своих взглядов',
+  'Твёрдая воля (умение настоять на своём, не отступать перед трудностями)',
+  'Терпимость (к взглядам и мнениям других, умение прощать другим их ошибки)',
+  'Широта взглядов (умение понять чужую точку зрения, уважать иные вкусы, обычаи)',
+  'Честность (правдивость, искренность)',
+  'Эффективность в делах (трудолюбие, продуктивность в работе)',
+  'Чуткость (заботливость)'
+];
+
+// ═══════════════════════════════════════════════════════
+//  URL ВАШЕГО GOOGLE APPS SCRIPT (заполните после деплоя)
+// ═══════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMGGd1nbZGJPQvmx23VTGC6GgRXNwd4IeSzviyPBXp7p7TCg7TZIncZKHiNPlmzOzZ/exec';
+
+// ═══════════════════════════════════════════════════════
+//  ПОСТРОЕНИЕ ВОПРОСОВ СЖО
+// ═══════════════════════════════════════════════════════
+function buildSZHO() {
+  const container = document.getElementById('szho-questions');
+  SZHO.forEach(([left, right], i) => {
+    const div = document.createElement('div');
+    div.className = 'q-row';
+    div.innerHTML = `
+      <div class="q-num">Вопрос ${i + 1} из 20</div>
+      <div class="scale-wrap">
+        <div class="scale-poles"><span>${left}</span><span>${right}</span></div>
+        <div class="scale-radios">
+          ${[1,2,3,4,5,6,7].map(v => `
+            <label>
+              <input type="radio" name="szho_${i}" value="${v}">
+              <span>${v}</span>
+            </label>`).join('')}
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  ПОСТРОЕНИЕ ТАБЛИЦ РОКИЧА
+// ═══════════════════════════════════════════════════════
+function buildRokeach(values, tbodyId, prefix, warnId, countId, fillId, nextBtnId) {
+  const tbody = document.getElementById(tbodyId);
+  const opts = ['', ...Array.from({length:18}, (_,i) => i+1)];
+
+  values.forEach((val, i) => {
+    const tr = document.createElement('tr');
+    const selectId = `${prefix}_${i}`;
+    tr.innerHTML = `
+      <td class="rok-num">${i+1}</td>
+      <td>${val}</td>
+      <td class="rok-val-cell">
+        <select class="rok-select" id="${selectId}" data-prefix="${prefix}" data-idx="${i}">
+          ${opts.map(o => `<option value="${o}">${o === '' ? '—' : o}</option>`).join('')}
+        </select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Вешаем слушатели
+  document.querySelectorAll(`select[data-prefix="${prefix}"]`).forEach(sel => {
+    sel.addEventListener('change', () => validateRokeach(prefix, warnId, countId, fillId, nextBtnId));
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  ВАЛИДАЦИЯ РОКИЧА — живая, на каждый change
+// ═══════════════════════════════════════════════════════
+function validateRokeach(prefix, warnId, countId, fillId, nextBtnId) {
+  const selects = [...document.querySelectorAll(`select[data-prefix="${prefix}"]`)];
+  const vals = selects.map(s => s.value);
+
+  // Считаем встречаемость
+  const freq = {};
+  vals.forEach(v => { if (v !== '') freq[v] = (freq[v] || 0) + 1; });
+
+  const filled   = vals.filter(v => v !== '').length;
+  const dups     = Object.values(freq).some(c => c > 1);
+  const complete = filled === 18 && !dups;
+
+  // Раскраска селектов
+  selects.forEach((s, i) => {
+    s.classList.remove('dup', 'ok');
+    if (vals[i] === '') return;
+    if (freq[vals[i]] > 1) s.classList.add('dup');
+    else                   s.classList.add('ok');
+  });
+
+  // Счётчик
+  document.getElementById(countId).textContent = `Заполнено: ${filled} / 18${dups ? ' · ⚠ есть повторения' : ''}`;
+  document.getElementById(fillId).style.width = (filled / 18 * 100) + '%';
+
+  // Предупреждение
+  const warn = document.getElementById(warnId);
+  if (dups) {
+    const dupNums = Object.entries(freq).filter(([,c]) => c > 1).map(([v]) => v).join(', ');
+    warn.querySelector('span').textContent =
+      `Ранг${Object.values(freq).filter(c=>c>1).length > 1 ? 'и' : ''} ${dupNums} выбран${Object.values(freq).filter(c=>c>1).length > 1 ? 'ы' : ''} несколько раз. Исправьте выделенные красным строки.`;
+    warn.classList.add('visible');
+  } else {
+    warn.classList.remove('visible');
+  }
+
+  // Кнопка
+  if (nextBtnId) {
+    const btn = document.getElementById(nextBtnId);
+    btn.disabled = !complete;
+    document.getElementById(nextBtnId === 'btn-next-2' ? 'hint-2' : 'hint-3').classList.toggle('visible', !complete && filled > 0);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  НАВИГАЦИЯ МЕЖДУ ШАГАМИ
+// ═══════════════════════════════════════════════════════
+let currentStep = 0;
+const TOTAL_STEPS = 4;
+
+function updateProgress(step) {
+  const pct = Math.round(step / TOTAL_STEPS * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('step-pct').textContent = pct + '%';
+  document.getElementById('step-label').textContent = `Шаг ${step + 1} из ${TOTAL_STEPS}`;
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active','done');
+    if (i < step)      dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+}
+
+function nextStep(from) {
+  if (!validateStep(from)) return;
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from + 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress(currentStep);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function prevStep(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  currentStep = from - 1;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  updateProgress(currentStep);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function validateStep(step) {
+  if (step === 0) {
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const age    = document.querySelector('input[name="age"]:checked');
+    if (!gender || !age) {
+      document.getElementById('hint-0').classList.add('visible');
+      return false;
+    }
+    document.getElementById('hint-0').classList.remove('visible');
+    return true;
+  }
+  if (step === 1) {
+    const unanswered = SZHO.some((_, i) => !document.querySelector(`input[name="szho_${i}"]:checked`));
+    if (unanswered) {
+      document.getElementById('hint-1').classList.add('visible');
+      // Подсвечиваем первый пропущенный
+      for (let i = 0; i < SZHO.length; i++) {
+        if (!document.querySelector(`input[name="szho_${i}"]:checked`)) {
+          document.querySelector(`input[name="szho_${i}"]`).closest('.q-row').scrollIntoView({behavior:'smooth', block:'center'});
+          break;
+        }
+      }
+      return false;
+    }
+    document.getElementById('hint-1').classList.remove('visible');
+    return true;
+  }
+  // Шаги 2 и 3 контролируются через disabled на кнопке
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════
+//  ОТПРАВКА В GOOGLE APPS SCRIPT
+// ═══════════════════════════════════════════════════════
+function collectData() {
+  const data = {
+    timestamp: new Date().toLocaleString('ru-RU'),
+    gender:    document.querySelector('input[name="gender"]:checked')?.value,
+    age:       document.querySelector('input[name="age"]:checked')?.value,
+    szho:      SZHO.map((_, i) => document.querySelector(`input[name="szho_${i}"]:checked`)?.value),
+    rok_a:     ROK_A.map((_, i) => document.getElementById(`rok_a_${i}`)?.value),
+    rok_b:     ROK_B.map((_, i) => document.getElementById(`rok_b_${i}`)?.value)
+  };
+  return data;
+}
+
+async function submitForm() {
+  document.getElementById('overlay').classList.add('visible');
+  const data = collectData();
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data)
+    });
+  } catch(e) {
+    // no-cors: fetch всегда возвращает opaque response, ошибки сети игнорируем
+    console.warn('Fetch error (может быть нормой при no-cors):', e);
+  }
+
+  document.getElementById('overlay').classList.remove('visible');
+
+  // Скрываем все шаги, показываем «Спасибо»
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('prog-bar').style.width = '100%';
+  document.getElementById('thankyou').classList.add('visible');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════
+//  ИНИЦИАЛИЗАЦИЯ
+// ═══════════════════════════════════════════════════════
+buildSZHO();
+buildRokeach(ROK_A, 'rok-a-body', 'rok_a', 'dup-warn-a', 'rok-a-count', 'rok-a-fill', 'btn-next-2');
+buildRokeach(ROK_B, 'rok-b-body', 'rok_b', 'dup-warn-b', 'rok-b-count', 'rok-b-fill', 'btn-submit');
+updateProgress(0);
+</script>
+</body>
+</html>
